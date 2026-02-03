@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drum Kit Picker</title>
+</head>
+<body>
+    <h1>Drum Kit Picker</h1>
+    <form action="/recommend" method="post">
+        <label>Kit Type:</label>
+        <input name="kit_type" value="acoustic"><br>
+        <label>Budget:</label>
+        <input name="budget" value="1000"><br>
+        <label>Space:</label>
+        <input name="space" value="medium"><br>
+        <label>Skill:</label>
+        <input name="skill" value="beginner"><br>
+        <label>Genre:</label>
+        <input name="genre" value="rock"><br>
+        <label>Quiet Priority (yes/no):</label>
+        <input name="quiet_priority" value="no"><br>
+        <button type="submit">Get Recommendation</button>
+    </form>
+</body>
+</html>
