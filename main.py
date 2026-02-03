@@ -139,16 +139,7 @@ async def recommend(
 
     # 2) LLM writes the explanation and the final output.
     model_access_key = env_required("DO_MODEL_ACCESS_KEY")
-model_id = env_required("DO_MODEL_ID")
-
-rec = await do_chat(
-    model=model_id,
-    api_key=model_access_key,
-    messages=[
-        {"role": "system", "content": system},
-        {"role": "user", "content": user},
-    ],
-)
+model_id = env_required("DO_MODEL_ID")  # example model id from DO docs :contentReference[oaicite:2]{index=2}
 
     shortlist_text = "\n".join(
         [
