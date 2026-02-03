@@ -126,27 +126,23 @@ async def recommend(
     quiet_priority: str = Form(...),
 ) -> str:
     prefs = {
-        "kit_type": kit_type,
-        "budget": int(budget),
-        "space": space,
-        "skill": skill,
-        "genre": genre,
-        "quiet_priority": quiet_priority == "yes",
-    }
+    "kit_type": kit_type,
+    "budget": int(budget),
+    "space": space,
+    "skill": skill,
+    "genre": genre,
+    "quiet_priority": quiet_priority == "yes",
+}
 
-    # 1) Deterministic shortlisting (keeps the LLM from hallucinating random models).
-    top = pick_top_kits(prefs, k=3)
+top = pick_top_kits(prefs, k=3)
 
-    # 2) LLM writes the explanation and the final output.
-    model_access_key = env_required("DO_MODEL_ACCESS_KEY")
-model_id = env_required("DO_MODEL_ID")  # example model id from DO docs :contentReference[oaicite:2]{index=2}
+shortlist_text = "\n".join(
+    [
+        f"- {k.name} | {k.kit_type} | ${k.price_min}-${k.price_max} | space:{k.space} | skill:{k.skill} | notes:{k.notes}"
+        for k in top
+    ]
+)
 
-    shortlist_text = "\n".join(
-        [
-            f"- {k.name} | {k.kit_type} | ${k.price_min}-${k.price_max} | space:{k.space} | skill:{k.skill} | notes:{k.notes}"
-            for k in top
-        ]
-    )
 
     system = (
         "You recommend drum kits. "
