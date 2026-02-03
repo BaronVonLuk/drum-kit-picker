@@ -23,17 +23,28 @@ def env_required(name: str) -> str:
     return val
 
 
-async def do_chat(model: str, api_key: str, messages: List[Dict[str, Any]]) -> str:
-    url = f"{DO_INFERENCE_BASE_URL}/chat/completions"
+async def do_chat(model: str, api_key: str, messages: list[dict]) -> str:
+    url = "https://inference.do-ai.run/v1/responses"
+
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
+
     payload = {
         "model": model,
-        "messages": messages,
+        "input": [
+            {
+                "role": "system",
+                "content": messages[0]["content"],
+            },
+            {
+                "role": "user",
+                "content": messages[1]["content"],
+            },
+        ],
         "temperature": 0.4,
-        "max_tokens": 500,
+        "max_output_tokens": 500,
     }
 
     async with httpx.AsyncClient(timeout=30) as client:
@@ -41,7 +52,8 @@ async def do_chat(model: str, api_key: str, messages: List[Dict[str, Any]]) -> s
         r.raise_for_status()
         data = r.json()
 
-    return data["choices"][0]["message"]["content"]
+    return data["output"][0]["content"][0]["text"]
+
 
 
 @app.get("/", response_class=HTMLResponse)
