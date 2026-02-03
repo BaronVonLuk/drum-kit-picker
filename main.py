@@ -33,18 +33,9 @@ async def do_chat(model: str, api_key: str, messages: list[dict]) -> str:
 
     payload = {
         "model": model,
-        "input": [
-            {
-                "role": "system",
-                "content": messages[0]["content"],
-            },
-            {
-                "role": "user",
-                "content": messages[1]["content"],
-            },
-        ],
-        "temperature": 0.4,
+        "input": messages,
         "max_output_tokens": 500,
+        "temperature": 0.4,
     }
 
     async with httpx.AsyncClient(timeout=30) as client:
@@ -53,7 +44,6 @@ async def do_chat(model: str, api_key: str, messages: list[dict]) -> str:
         data = r.json()
 
     return data["output"][0]["content"][0]["text"]
-
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -149,7 +139,16 @@ async def recommend(
 
     # 2) LLM writes the explanation and the final output.
     model_access_key = env_required("DO_MODEL_ACCESS_KEY")
-    model_id = os.getenv("DO_MODEL_ID", "llama3.3-70b-instruct")  # example model id from DO docs :contentReference[oaicite:2]{index=2}
+model_id = env_required("DO_MODEL_ID")
+
+rec = await do_chat(
+    model=model_id,
+    api_key=model_access_key,
+    messages=[
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ],
+)
 
     shortlist_text = "\n".join(
         [
