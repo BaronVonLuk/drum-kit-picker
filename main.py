@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from kits import pick_top_kits, DrumKit
 
 
-DO_INFERENCE_BASE_URL = "https://inference.do-ai.run"  # DigitalOcean serverless inference base URL :contentReference[oaicite:1]{index=1}
+DO_INFERENCE_BASE_URL = "https://inference.do-ai.run/v1"  # DigitalOcean serverless inference base URL :contentReference[oaicite:1]{index=1}
 
 
 app = FastAPI(title="Drum Kit Picker")
@@ -24,7 +24,7 @@ def env_required(name: str) -> str:
 
 
 async def do_chat(model: str, api_key: str, messages: List[Dict[str, Any]]) -> str:
-    url = f"{DO_INFERENCE_BASE_URL}/v1/chat/completions"
+    url = f"{DO_INFERENCE_BASE_URL}/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
