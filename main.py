@@ -166,10 +166,11 @@ async def recommend(
     <meta charset="utf-8"/>
     <title>Recommendations</title>
     <style>
-      body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; max-width: 860px; }}
-      pre {{ white-space: pre-wrap; background: #f6f6f6; padding: 1rem; border-radius: 12px; }}
-      a {{ display:inline-block; margin-top: 1rem; }}
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; max-width: 860px; }
+        pre { white-space: pre-wrap; background: #f6f6f6; padding: 1rem; border-radius: 12px; }
+        a { display:inline-block; margin-top: 1rem; }
     </style>
+
   </head>
   <body>
     <h1>Your recommendations</h1>
