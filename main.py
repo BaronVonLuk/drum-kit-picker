@@ -2,18 +2,14 @@ import os
 from typing import Any, Dict, List
 
 import httpx
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
 from kits import pick_top_kits, DrumKit
 
-
-DO_INFERENCE_BASE_URL = "https://inference.do-ai.run"  # DigitalOcean serverless inference base URL :contentReference[oaicite:1]{index=1}
-
+DO_INFERENCE_BASE_URL = "https://inference.do-ai.run"
 
 app = FastAPI(title="Drum Kit Picker")
-templates = Jinja2Templates(directory=".")
 
 
 def env_required(name: str) -> str:
@@ -93,8 +89,15 @@ async def home():
     <label>Quiet Priority</label><br/>
     <select name="quiet_priority" required>
       <option value="yes">Yes</option>
-      <option value="no">No</
+      <option value="no">No</option>
+    </select><br/><br/>
 
+    <button type="submit">Get recommendation</button>
+
+  </form>
+</body>
+</html>
+"""
 
 
 @app.post("/recommend", response_class=HTMLResponse)
@@ -115,25 +118,25 @@ async def recommend(
         "quiet_priority": quiet_priority == "yes",
     }
 
-    # 1) Deterministic shortlisting (keeps the LLM from hallucinating random models).
+    # Deterministic shortlist
     top = pick_top_kits(prefs, k=3)
 
-    # 2) LLM writes the explanation and the final output.
     model_access_key = env_required("DO_MODEL_ACCESS_KEY")
-    model_id = os.getenv("DO_MODEL_ID", "llama3.3-70b-instruct")  # example model id from DO docs :contentReference[oaicite:2]{index=2}
+    model_id = os.getenv("DO_MODEL_ID", "llama3.3-70b-instruct")
 
     shortlist_text = "\n".join(
         [
-            f"- {k.name} | {k.kit_type} | ${k.price_min}-${k.price_max} | space:{k.space} | skill:{k.skill} | notes:{k.notes}"
+            f"- {k.name} | {k.kit_type} | ${k.price_min}-${k.price_max} | "
+            f"space:{k.space} | skill:{k.skill} | notes:{k.notes}"
             for k in top
         ]
     )
 
     system = (
         "You recommend drum kits. "
-        "Use ONLY the provided shortlist as the candidate kits. "
-        "Be direct. Point out conflicts (ex: acoustic in an apartment). "
-        "Return a clean, readable result with sections: Best pick, Runner-up, Third option, What to buy, Setup tips."
+        "Use ONLY the provided shortlist. "
+        "Be direct and practical. "
+        "Return sections: Best pick, Runner-up, Third option, What to buy, Setup tips."
     )
 
     user = (
@@ -144,7 +147,7 @@ async def recommend(
         f"- skill: {prefs['skill']}\n"
         f"- genre: {prefs['genre']}\n"
         f"- quiet priority: {prefs['quiet_priority']}\n\n"
-        f"Shortlist (only options you may recommend):\n{shortlist_text}"
+        f"Shortlist:\n{shortlist_text}"
     )
 
     try:
@@ -159,24 +162,34 @@ async def recommend(
     except Exception as e:
         rec = f"AI call failed: {type(e).__name__}: {e}"
 
-    return """
+    return f"""
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>Recommendations</title>
-    <style>
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; max-width: 860px; }
-  pre { white-space: pre-wrap; background: #f6f6f6; padding: 1rem; border-radius: 12px; }
-  a { display:inline-block; margin-top: 1rem; }
-</style>
-
-
-  </head>
-  <body>
-    <h1>Your recommendations</h1>
-    <pre>{rec}</pre>
-    <a href="/">← Back</a>
-  </body>
+<head>
+  <meta charset="utf-8"/>
+  <title>Recommendations</title>
+  <style>
+    body {{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 2rem;
+      max-width: 860px;
+    }}
+    pre {{
+      white-space: pre-wrap;
+      background: #f6f6f6;
+      padding: 1rem;
+      border-radius: 12px;
+    }}
+    a {{
+      display: inline-block;
+      margin-top: 1rem;
+    }}
+  </style>
+</head>
+<body>
+  <h1>Your recommendations</h1>
+  <pre>{rec}</pre>
+  <a href="/">← Back</a>
+</body>
 </html>
 """
