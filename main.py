@@ -159,7 +159,7 @@ async def recommend(
     except Exception as e:
         rec = f"AI call failed: {type(e).__name__}: {e}"
 
-    return f"""
+    return """
 <!doctype html>
 <html>
   <head>
